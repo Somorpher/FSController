@@ -102,6 +102,16 @@ namespace FSControllerModule {
 #define __0x_attr_FSC_gss __attribute__((no_icf, nothrow, noipa, no_stack_protector, pure, flatten, warn_unused_result, no_sanitize_address, no_sanitize_coverage, no_sanitize_undefined, optimize(ATTR_OPTIMIZE_LEVEL)))
 #define __0x_attr_FSC_gci __attribute__((no_icf, nothrow, noipa, no_stack_protector, pure, flatten, warn_unused_result, no_sanitize_address, no_sanitize_coverage, no_sanitize_undefined, optimize(ATTR_OPTIMIZE_LEVEL)))
 #define __0x_attr_FSC_gsp __attribute__((no_icf, nothrow, stack_protect, warn_unused_result, access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_ifc __attribute__((no_icf, nothrow, stack_protect, warn_unused_result, cold, flatten, access(read_write, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_cpm __attribute__((no_icf, nothrow, stack_protect, warn_unused_result, hot, flatten, pure, access(read_only, 1),access(read_only, 2),access(read_only, 3), zero_call_used_regs("used"), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_ofd __attribute__((no_icf, stack_protect, warn_unused_result, hot, flatten, pure, access(read_only, 1), access(read_only, 2), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_cfs __attribute__((no_icf, warn_unused_result, flatten, pure, access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_vms __attribute__((no_icf, flatten, stack_protect, zero_call_used_regs("used"), access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_amb __attribute__((no_icf, nothrow, flatten, stack_protect, tainted_args, zero_call_used_regs("used"), access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_dmc __attribute__((no_icf, flatten, stack_protect, zero_call_used_regs("all"), access(read_write, 1), access(read_write, 2), access(read_only, 3), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_drz __attribute__((no_icf, flatten, stack_protect, always_inline, access(read_only, 1), access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_cps __attribute__((no_icf, flatten, nothrow, pure, warn_unused_result, no_stack_protector, noipa, access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_cmb __attribute__((no_icf, flatten, nothrow, stack_protect, zero_call_used_regs("used"), access(write_only, 1), access(read_only, 2), optimize(ATTR_OPTIMIZE_LEVEL)))
 
 #else
 
@@ -122,6 +132,16 @@ namespace FSControllerModule {
 #define __0x_attr_FSC_gss [[nothrow, nodiscard]]
 #define __0x_attr_FSC_gci [[nothrow, nodiscard]]
 #define __0x_attr_FSC_gsp [[nothrow, nodiscard]]
+#define __0x_attr_FSC_ifc [[nothrow, nodiscard]]
+#define __0x_attr_FSC_cpm [[nothrow, nodiscard]]
+#define __0x_attr_FSC_ofd [[nodiscard]]
+#define __0x_attr_FSC_ofs [[nodiscard]]
+#define __0x_attr_FSC_vms [[nothrow]]
+#define __0x_attr_FSC_amb [[nothrow]]
+#define __0x_attr_FSC_dmc [[nothrow]] // ?
+#define __0x_attr_FSC_drz [[nothrow]] // ?
+#define __0x_attr_FSC_cps [[nothrow, nodiscard]]
+#define __0x_attr_FSC_cmb [[nothrow]]
 
 #endif
 
@@ -435,7 +455,7 @@ private:
 	 * @returns FSController the pointer to this object
 	 *
 	 */
-	template <typename _tN, typename = std::enable_if<std::is_class_v<_tN>>> inline FSController *__initFsController(_tN _o) noexcept {
+	template <typename _tN, typename = std::enable_if<std::is_class_v<_tN>>> __0x_attr_FSC_ifc inline FSController *__initFsController(_tN _o) noexcept {
 		std::cout << "is reference: " << std::boolalpha << std::is_reference_v<_tN> << "\n";
 		if (*this != _o) {
 			this->_profile_stack_reg = std::is_rvalue_reference_v<_tN> ? std::move(_o._profile_stack_reg) : _o._profile_stack_reg;
@@ -456,7 +476,7 @@ private:
 	 *
 	 * @returns fMap_t The pointer to the mapped memory region.
 	 */
-	inline fMap_t __createPointerMap(const int &fileDescriptor, const off_t &descriptor_size, const bool read_mode = true, const size_t offset_size = 0) noexcept {
+	__0x_attr_FSC_cpm inline fMap_t __createPointerMap(const int &fileDescriptor, const off_t &descriptor_size, const bool read_mode = true, const size_t& offset_size = 0) noexcept {
 		const int proto_map_mode(read_mode ? PROT_READ : PROT_READ | PROT_WRITE);
 		const int map_access_scope(read_mode ? MAP_PRIVATE : MAP_SHARED);
 		const off_t map_offset = read_mode ? 0 : offset_size;
@@ -474,7 +494,7 @@ private:
 	 *
 	 * @throws std::runtime_error If the file descriptor cannot be opened.
 	 */
-	inline int __openFileDescriptor(const StringView_t _file_name, const eFileDescriptorMode _mode) {
+	__0x_attr_FSC_ofd inline int __openFileDescriptor(const StringView_t& _file_name, const eFileDescriptorMode& _mode) {
 		int descriptor_open(_mode == eFileDescriptorMode::READ ? open(_file_name.data(), O_RDONLY) : open(_file_name.data(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR));
 		if (descriptor_open == -1) [[unlikely]]
 			throw std::runtime_error(std::move(String_t("Cannot open file descriptor for file ") + _file_name.data()));
@@ -491,7 +511,7 @@ private:
 	 *
 	 * @throws std::runtime_error If the file status cannot be obtained.
 	 */
-	inline struct stat __createFileStat(int &file_descriptor) {
+	__0x_attr_FSC_cfs inline struct stat __createFileStat(int &file_descriptor) {
 		struct stat file_stat_description;
 		if (fstat(file_descriptor, &file_stat_description) == -1) [[unlikely]]
 			throw std::runtime_error("Error getting file stat");
@@ -506,7 +526,7 @@ private:
 	 *
 	 * @throws std::runtime_error If the memory map is invalid.
 	 */
-	inline void __verifyMemMapState(const fMap_t &map_ptr) {
+	__0x_attr_FSC_vms inline void __verifyMemMapState(const fMap_t &map_ptr) {
 		if (map_ptr == MAP_FAILED) [[unlikely]]
 			throw std::runtime_error("Error mapping file");
 	};
@@ -521,7 +541,7 @@ private:
 	 *
 	 * @returns void
 	 */
-	inline void __allocMappedBytes(String_t &destination_alloc, const fMap_t *__restrict__ mapped_data_pointer, const off_t &map_size) noexcept {
+	__0x_attr_FSC_amb inline void __allocMappedBytes(String_t &destination_alloc, const fMap_t *__restrict__ mapped_data_pointer, const off_t &map_size) noexcept {
 		destination_alloc.assign(static_cast<fMap_t>(*mapped_data_pointer), map_size);
 	};
 
@@ -535,7 +555,7 @@ private:
 	 *
 	 * @throws std::runtime_error If the file descriptor cannot be closed or the memory region cannot be unmapped.
 	 */
-	inline void __descriptorMapClose(int &fileDescriptor, const fMap_t *__restrict__ mapped_data_pointer, const off_t &map_size) {
+	__0x_attr_FSC_dmc inline void __descriptorMapClose(int &fileDescriptor, const fMap_t *__restrict__ mapped_data_pointer, const off_t &map_size) {
 		if (munmap(*mapped_data_pointer, map_size) == -1) [[unlikely]]
 			throw std::runtime_error("Cannot unmap address!");
 		close(fileDescriptor);
@@ -550,7 +570,7 @@ private:
 	 *
 	 * @throws std::runtime_error If the file descriptor cannot be resized.
 	 */
-	inline void __descriptorResize(int &descriptor, const off_t &offset_size) {
+	__0x_attr_FSC_drz inline void __descriptorResize(int &descriptor, const off_t &offset_size) {
 		if (ftruncate(descriptor, offset_size) == -1) [[unlikely]]
 			throw std::runtime_error("Cannot resize descriptor!");
 	};
@@ -563,7 +583,7 @@ private:
 	 *
 	 * @returns struct stFileProfiler The empty profiler structure.
 	 */
-	constexpr struct stFileProfiler __createEmptyProfilerStructure(const StringView_t _file_name = "") noexcept {
+	__0x_attr_FSC_cps constexpr struct stFileProfiler __createEmptyProfilerStructure(const StringView_t _file_name = "") noexcept {
 		return {.file_content{}, .file_name{_file_name.data()}, .file_size{0}};
 	};
 
@@ -576,7 +596,7 @@ private:
 	 *
 	 * @returns void
 	 */
-	inline void __copyMappedMemoryBytes(fMap_t &from_map, StringView_t destination) { std::memcpy(from_map, destination.data(), destination.length()); }
+	__0x_attr_FSC_cmb inline void __copyMappedMemoryBytes(const fMap_t &destination, const StringView_t& source) noexcept { std::memcpy(destination, source.data(), source.length()); }
 };
 
 #endif
