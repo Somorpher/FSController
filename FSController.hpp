@@ -58,24 +58,72 @@ namespace FSControllerModule {
  *
  */
 #if defined(__linux__) || defined(__APPLE__)
+
 /*                      Global Macro                     *\
 \*+++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+#ifdef __GNUC__
 #define __SUPPORTED_COMPILER_1__ __GNUC__
+#endif
+
+#ifdef __clang__
 #define __SUPPORTED_COMPILER_2__ __clang__
+#endif
+
+#ifdef IS_DEBUGGING_CODE
+#define ATTR_OPTIMIZE_LEVEL "0"
+#else
+#define ATTR_OPTIMIZE_LEVEL "3"
+#endif
+
 #define FS_MAX_FILE_NAME_LENGTH (std::uint16_t)200         /* the max length for individual absolute address */
 #define FS_MAX_COLLECTION_STACK_SIZE (std::uint32_t)100000 /* max value for instance aggregation size */
 
 #define __tm_file_aggregation template <typename _Ft, typename = std::enable_if<!std::is_array_v<_Ft> && !std::is_pointer_v<_Ft>>>
 
 /**
- * Random Number Generator Static Function(Namespace Encapsulated)
+ * Compiler Detection, only implement attributes with supported compiler installed
  */
-static const std::uint64_t GenerateRandomId(void) noexcept {
-	std::random_device _d;
-	std::mt19937 _eng(_d());
-	std::uniform_int_distribution<uint64_t> _g(9999999999999, 9999999999999999);
-	return _g(_eng);
-};
+#if defined(__SUPPORTED_COMPILER_1__) || defined(__SUPPORTED_COMPILER_2__)
+
+#define __0x_attr_gri __attribute__((hot, no_icf, warn_unused_result, nothrow, pure, zero_call_used_regs("all"), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_psrsgp __attribute__((no_icf, warn_unused_result, nothrow, access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_psrsjp __attribute__((no_icf, nothrow, always_inline, access(read_only, 1), zero_call_used_regs("all"), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_cc __attribute__((no_icf, nothrow, always_inline, cold, access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_mc __attribute__((no_icf, nothrow, always_inline, cold, access(read_write, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_co __attribute__((no_icf, nothrow, always_inline, const, cold, warn_unused_result, access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_fe __attribute__((no_icf, nothrow, always_inline, flatten, pure, hot, warn_unused_result, access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_itf __attribute__((no_icf, nothrow, always_inline, flatten, pure, warn_unused_result, no_stack_protector, access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_iex __attribute__((no_icf, nothrow, always_inline, flatten, pure, warn_unused_result, no_stack_protector, access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_isl __attribute__((no_icf, nothrow, always_inline, flatten, pure, warn_unused_result, no_stack_protector, access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_id __attribute__((no_icf, nothrow, always_inline, flatten, pure, warn_unused_result, no_stack_protector, access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_fr __attribute__((no_icf, warn_unused_result, hot, stack_protect, zero_call_used_regs("used"), access(read_only, 1), access(read_only, 2), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_fw __attribute__((no_icf, stack_protect, hot, zero_call_used_regs("used"), access(read_only, 1), access(read_only, 2), access(read_only, 3), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_rnp __attribute__((no_icf, nothrow, stack_protect, hot, zero_call_used_regs("used"), access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_gss __attribute__((no_icf, nothrow, noipa, no_stack_protector, pure, flatten, warn_unused_result, no_sanitize_address, no_sanitize_coverage, no_sanitize_undefined, optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_gci __attribute__((no_icf, nothrow, noipa, no_stack_protector, pure, flatten, warn_unused_result, no_sanitize_address, no_sanitize_coverage, no_sanitize_undefined, optimize(ATTR_OPTIMIZE_LEVEL)))
+#define __0x_attr_FSC_gsp __attribute__((no_icf, nothrow, stack_protect, warn_unused_result, access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL)))
+
+#else
+
+#define __0x_attr_gri [[nodiscard, nothrow]]
+#define __0x_attr_psrsgp [[nodiscard, nothrow]]
+#define __0x_attr_psrsjp [[nothrow]]
+#define __0x_attr_FSC_cc [[nothrow, nodiscard]]
+#define __0x_attr_FSC_mc [[nothrow, nodiscard]]
+#define __0x_attr_FSC_co [[nothrow, nodiscard]]
+#define __0x_attr_FSC_fe [[nothrow, nodiscard]]
+#define __0x_attr_FSC_itf [[nothrow, nodiscard]]
+#define __0x_attr_FSC_iex [[nothrow, nodiscard]]
+#define __0x_attr_FSC_isl [[nothrow, nodiscard]]
+#define __0x_attr_FSC_id [[nothrow, nodiscard]]
+#define __0x_attr_FSC_fr [[nodiscard]]
+#define __0x_attr_FSC_fw [[nodiscard]]
+#define __0x_attr_FSC_rnp [[nothrow]]
+#define __0x_attr_FSC_gss [[nothrow, nodiscard]]
+#define __0x_attr_FSC_gci [[nothrow, nodiscard]]
+#define __0x_attr_FSC_gsp [[nothrow, nodiscard]]
+
+#endif
 
 /**
  * Debugging configuration mode, remove this macro for production use!
@@ -92,9 +140,14 @@ static const std::uint64_t GenerateRandomId(void) noexcept {
 #endif
 
 /**
- * Compiler Detection, only implement with supported compiler installed
+ * Random Number Generator Static Function(Namespace Encapsulated)
  */
-#if defined(__SUPPORTED_COMPILER_1__) || defined(__SUPPORTED_COMPILER_2__)
+__0x_attr_gri static const std::uint64_t GenerateRandomId(void) noexcept {
+	std::random_device _d;
+	std::mt19937 _eng(_d());
+	std::uniform_int_distribution<uint64_t> _g(9999999999999, 9999999999999999);
+	return _g(_eng);
+};
 
 /*                      Type Alias                       *\
 \*+++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
@@ -108,7 +161,8 @@ enum class eFileDescriptorMode : uint8_t { READ = 0, WRITE };
 
 /*                      Structure                        *\
 \*+++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-struct alignas(void *) stFileProfiler {
+#pragma pack(1)
+struct stFileProfiler {
 	String_t file_content{}; /* contains file content */
 	String_t file_name{};    /* full path(absolute path) to file*/
 	size_t file_size{};      /* file size in bytes */
@@ -136,7 +190,7 @@ __tm_file_aggregation struct stProfilerStackRegister {
 	 * @param _Ft the index to search for
 	 * @returns struct stFileProfiler, the descriptor at
 	 */
-	inline const struct stFileProfiler getProfile(const _Ft _profile_id) noexcept {
+	__0x_attr_psrsgp inline const struct stFileProfiler getProfile(const _Ft _profile_id) noexcept {
 		if (reg_stack_size > 0) [[likely]] {
 			if (stack_register.find(_profile_id) != stack_register.end()) {
 				return stack_register[_profile_id];
@@ -145,7 +199,7 @@ __tm_file_aggregation struct stProfilerStackRegister {
 		return {};
 	};
 
-	inline void joinProfile(const struct stFileProfiler &_new_profile) noexcept {
+	__0x_attr_psrsjp inline void joinProfile(const struct stFileProfiler &_new_profile) noexcept {
 		if (++reg_stack_size < FS_MAX_COLLECTION_STACK_SIZE - 1) [[likely]] {
 			if (stack_register.find(_new_profile.file_name) == stack_register.end()) {
 				stack_register.insert({_new_profile.file_name, std::move(_new_profile)});
@@ -157,6 +211,8 @@ __tm_file_aggregation struct stProfilerStackRegister {
 
 	~stProfilerStackRegister(void) noexcept = default;
 };
+
+#pragma pack()
 
 /*                          Class                        *\
 \*+++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
@@ -184,21 +240,21 @@ public:
 	};
 
 	/* FS Controller Copy Constructor */
-	FSController(const FSController &_o) noexcept : _profile_stack_reg(_o._profile_stack_reg), _fs_instance_uid(_o._fs_instance_uid), _fs_new_instance(_o._fs_instance_uid) {};
+	__0x_attr_FSC_cc FSController(const FSController &_o) noexcept : _profile_stack_reg(_o._profile_stack_reg), _fs_instance_uid(_o._fs_instance_uid), _fs_new_instance(_o._fs_instance_uid) {};
 
 	/* FS Controller Copy Operator Overload */
-	FSController &operator=(const FSController &_o) noexcept { return *this->__initFsController<const FSController &>(_o); };
+	__0x_attr_FSC_cc FSController &operator=(const FSController &_o) noexcept { return *this->__initFsController<const FSController &>(_o); };
 
 	/* FS Controller Move Constructor */
-	FSController(FSController &&_o) noexcept
+	__0x_attr_FSC_mc FSController(FSController &&_o) noexcept
 			: _profile_stack_reg(std::move(_o._profile_stack_reg)), _fs_instance_uid(std::move(_o._fs_instance_uid)), _fs_new_instance(std::move(_o._fs_instance_uid)) {};
 
 	/* FS Controller Move Operator Overload */
-	FSController &operator=(FSController &&_o) noexcept { return *this->__initFsController<FSController &&>(std::move(_o)); };
+	__0x_attr_FSC_mc FSController &operator=(FSController &&_o) noexcept { return *this->__initFsController<FSController &&>(std::move(_o)); };
 
 	/* FS Controller Comparision Operator Overload */
-	constexpr bool operator==(const FSController &_o) noexcept { return this->_fs_instance_uid == _o._fs_instance_uid; };
-	constexpr bool operator!=(const FSController &_o) noexcept { return !(this->_fs_instance_uid == _o._fs_instance_uid); };
+	__0x_attr_FSC_co constexpr bool operator==(const FSController &_o) noexcept { return this->_fs_instance_uid == _o._fs_instance_uid; };
+	__0x_attr_FSC_co constexpr bool operator!=(const FSController &_o) noexcept { return !(this->_fs_instance_uid == _o._fs_instance_uid); };
 
 	/**
 	 *
@@ -207,10 +263,9 @@ public:
 	 * @returns bool true if file_name is found, false otherwise
 	 *
 	 */
-	inline static const bool FileExists(const StringView_t file_name) noexcept {
+	__0x_attr_FSC_fe inline static const bool FileExists(const StringView_t& file_name) noexcept {
 		if (file_name.empty() || file_name.size() > FS_MAX_FILE_NAME_LENGTH || file_name.find(" ") != std::string::npos) [[unlikely]]
 			return false;
-
 		return std::filesystem::exists(file_name.data());
 	};
 
@@ -221,7 +276,7 @@ public:
 	 * @returns bool true if every target within file_list is found, false otherwise
 	 *
 	 */
-	inline static const bool FileExists(const std::unordered_set<String_t> file_list) noexcept {
+	__0x_attr_FSC_fe inline static const bool FileExists(const std::unordered_set<String_t>& file_list) noexcept {
 		if (file_list.empty() && file_list.size() > 500000) [[unlikely]]
 			return false;
 
@@ -239,7 +294,7 @@ public:
 	 * @returns bool true if file_name is a text file, false otherwise
 	 *
 	 */
-	inline static const bool IsTextFile(const StringView_t file_name) noexcept { return std::filesystem::is_regular_file(file_name.data()); };
+	__0x_attr_FSC_itf inline static const bool IsTextFile(const StringView_t& file_name) noexcept { return std::filesystem::is_regular_file(file_name.data()); };
 
 	/**
 	 *
@@ -248,7 +303,7 @@ public:
 	 * @returns bool true if file_name is executable, false otherwise
 	 *
 	 */
-	inline static const bool IsExecutable(const StringView_t file_name) noexcept {
+	__0x_attr_FSC_iex inline static const bool IsExecutable(const StringView_t& file_name) noexcept {
 		if (IsTextFile(file_name.data())) {
 			std::filesystem::perms f_perms = std::filesystem::status(file_name.data()).permissions();
 			if (((f_perms & std::filesystem::perms::owner_exec) != std::filesystem::perms::none) || ((f_perms & std::filesystem::perms::group_exec) != std::filesystem::perms::none) ||
@@ -265,7 +320,7 @@ public:
 	 * @returns bool true if file_name is symlink, false otherwise
 	 *
 	 */
-	inline static const bool IsSymlink(const StringView_t file_name) noexcept { return std::filesystem::is_symlink(file_name.data()); };
+	__0x_attr_FSC_isl inline static const bool IsSymlink(const StringView_t& file_name) noexcept { return std::filesystem::is_symlink(file_name.data()); };
 
 	/**
 	 *
@@ -274,7 +329,7 @@ public:
 	 * @returns bool true if file_name is directory, false otherwise
 	 *
 	 */
-	inline static const bool IsDirectory(const StringView_t file_name) noexcept { return std::filesystem::is_directory(file_name.data()); };
+	__0x_attr_FSC_id inline static const bool IsDirectory(const StringView_t& file_name) noexcept { return std::filesystem::is_directory(file_name.data()); };
 
 	/**
 	 *
@@ -284,7 +339,7 @@ public:
 	 * @returns stFileProfiler a const read-only access to _file_name associated profile structure
 	 *
 	 */
-	inline const struct stFileProfiler FileRead(const StringView_t _file_name, const bool _create_new = false) {
+	__0x_attr_FSC_fr const struct stFileProfiler FileRead(const StringView_t& _file_name, const bool _create_new = false) {
 
 		struct stFileProfiler new_profiler(this->__createEmptyProfilerStructure(_file_name));
 
@@ -314,7 +369,7 @@ public:
 	 * @returns void
 	 *
 	 */
-	inline void FileWrite(const StringView_t _file_name, const StringView_t _buffer, const bool _create_new = false) {
+	__0x_attr_FSC_fw inline void FileWrite(const StringView_t& _file_name, const StringView_t& _buffer, const bool _create_new = false) {
 		int fileDescriptor(this->__openFileDescriptor(std::move(_file_name), eFileDescriptorMode::WRITE));
 
 		const off_t file_size(_buffer.length());
@@ -337,7 +392,7 @@ public:
 	 * @returns void
 	 *
 	 */
-	inline void RegisterNewProfiler(const struct stFileProfiler& _new_profile) noexcept {
+	__0x_attr_FSC_rnp inline void RegisterNewProfiler(const struct stFileProfiler &_new_profile) noexcept {
 		if (_new_profile.file_size > 0) [[likely]]
 			this->_profile_stack_reg.joinProfile(std::move(_new_profile));
 	};
@@ -348,7 +403,7 @@ public:
 	 * @returns size_t the size of register
 	 *
 	 */
-	constexpr size_t &GetStackRegisterSize(void) noexcept { return this->_profile_stack_reg.reg_stack_size; };
+	__0x_attr_FSC_gss constexpr size_t &GetStackRegisterSize(void) noexcept { return this->_profile_stack_reg.reg_stack_size; };
 
 	/**
 	 *
@@ -356,7 +411,7 @@ public:
 	 * @returns std::uint64_t the instance associated uid
 	 *
 	 */
-	constexpr std::uint64_t &GetFsControllerUID(void) noexcept { return this->_fs_instance_uid; };
+	__0x_attr_FSC_gci constexpr std::uint64_t &GetFsControllerUID(void) noexcept { return this->_fs_instance_uid; };
 
 	/**
 	 *
@@ -365,9 +420,9 @@ public:
 	 * @returns stFileProfiler const struct description(profiler) identified by _profile_id or empty descriptor if not found
 	 *
 	 */
-	inline const struct stFileProfiler GetStackProfile(const _ForeignKeyType_ &_profile_id) noexcept { return this->_profile_stack_reg.get(_profile_id); };
+	__0x_attr_FSC_gsp inline const struct stFileProfiler GetStackProfile(const _ForeignKeyType_ &_profile_id) noexcept { return this->_profile_stack_reg.get(_profile_id); };
 
-	~FSController() noexcept {
+	inline ~FSController() noexcept {
 		if (this->_fs_new_instance) [[likely]]
 			this->_fs_new_instance = false;
 	};
@@ -523,7 +578,6 @@ private:
 	 */
 	inline void __copyMappedMemoryBytes(fMap_t &from_map, StringView_t destination) { std::memcpy(from_map, destination.data(), destination.length()); }
 };
-#endif
 
 #endif
 
