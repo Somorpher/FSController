@@ -175,17 +175,44 @@ if(directoryProfiler.find(get_index)){
     * bool               - recursive or not
     * size_t             - threshold value, if register < threshold => register = clear
     */
-  stDirectoryCollectionStat profiledCollection = FC1.CollectDirectoryEntriesWithProfiling("path/to/directory", true, 1);
+stDirectoryCollectionStat profiledCollection = FC1.CollectDirectoryEntriesWithProfiling("path/to/directory", true, 1);
 
-	std::cout << "Collected " << profiledCollection.registry_size << " entries...\n";
-	std::cout << "Smallest entry: " << profiledCollection.min_size << "\n";
-	std::cout << "Largest entry: " << profiledCollection.max_size << "\n";
-	std::cout << "Path to Largest: " << profiledCollection.largest_file_path << "\n";
-	if (profiledCollection.registry_size > 0)
-	{
-		for (auto entry = profiledCollection.registry.begin(); entry != profiledCollection.registry.end(); entry++)
-		{
-			std::cout << "Entry: " << entry->c_str() << "\n";
-		}
-	}
+std::cout << "Collected " << profiledCollection.registry_size << " entries...\n";
+std::cout << "Smallest entry: " << profiledCollection.min_size << "\n";
+std::cout << "Largest entry: " << profiledCollection.max_size << "\n";
+std::cout << "Path to Largest: " << profiledCollection.largest_file_path << "\n";
+if (profiledCollection.registry_size > 0)
+{
+  for (auto entry = profiledCollection.registry.begin(); entry != profiledCollection.registry.end(); entry++)
+  {
+    std::cout << "Entry: " << entry->c_str() << "\n";
+  }
+}
+```
+
+## Using internal Register profiler
+
+> FileRead() will return a file description...
+```cpp
+// print register size 
+std::cout << "Profiler Register Size Before: " << FSC.GetStackRegisterSize() << "\n"; // 0
+
+// register is private, retrieve with function call...
+stProfilerStackRegister pRegister = FSC.GetStackPointer();
+
+// create new file description 
+stFileDescriptor FD = FSC.FileRead("file/to/read");
+
+// register new description
+FSC.RegisterNewProfiler(FD);
+
+// print register size again
+std::cout << "Profiler Register Size After: " << FSC.GetStackRegisterSize() << "\n"; // 1
+
+// delete a profile(Safe way)
+FSC.EraseRegisterProfile(FD.file_name); // filename has FK type and acts as the FK aka foreign-key
+
+// delete a profile(call-wrapping bypass)
+pRegister.eraseProfile(FD.file_name); // same shit...
+
 ```
