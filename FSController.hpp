@@ -311,8 +311,6 @@ struct alignas(void *) stProfilerStackRegister
 	std::unordered_map<_FKType, struct stFileDescriptor> stack_register{}; /* stack register, allocates file name(abs. address) as key and new file descriptor instance. */
 	size_t reg_stack_size{};                                               /* address register stack size */
 
-	bool extended_wiper{false}; /* what to do on GC execution, clean up program associated data or real file. */
-
 	bool gc_executed{false};
 
 	/**
@@ -346,7 +344,7 @@ struct alignas(void *) stProfilerStackRegister
 		reg_stack_size--;
 	};
 
-	inline void eraseProfile(const _FKType _fk, const bool globally = false)
+	inline void eraseProfile(const _FKType _fk)
 	{
 		if (gc_executed)
 			return;
@@ -356,10 +354,6 @@ struct alignas(void *) stProfilerStackRegister
 			if (rsi != stack_register.end()) [[likely]]
 			{
 				stack_register.erase(rsi);
-				if (extended_wiper && globally && std::filesystem::exists(_fk)) [[unlikely]]
-				{
-					std::filesystem::remove(_fk);
-				}
 			}
 		}
 	};
@@ -373,29 +367,10 @@ struct alignas(void *) stProfilerStackRegister
 			{
 				for (auto &[fKey, profile_description] : stack_register)
 				{
-					if (extended_wiper)
-					{
-						eraseProfile(profile_description.file_name, true);
-					}
-					else
-					{
-						eraseProfile(profile_description.file_name, false);
-					}
+					eraseProfile(profile_description.file_name);
 				}
 			}
 		}
-	};
-
-	inline void SetExtendedAccess(void) noexcept
-	{
-		if (!extended_wiper)
-			extended_wiper = true;
-	};
-
-	inline void SetRestrictedAccess(void) noexcept
-	{
-		if (extended_wiper)
-			extended_wiper = false;
 	};
 
 	stProfilerStackRegister() = default;
@@ -722,10 +697,10 @@ template <typename _ForeignKeyType_ = String_t> class FSController
 	 * @returns void
 	 *
 	 */
-	__attribute__((no_icf, nothrow, always_inline, access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL))) inline void UnlinkRegisterProfile(const _ForeignKeyType_ &_profile_id, const bool g_scope) noexcept
+	__attribute__((no_icf, nothrow, always_inline, access(read_only, 1), optimize(ATTR_OPTIMIZE_LEVEL))) inline void EraseRegisterProfile(const _ForeignKeyType_ &_profile_id) noexcept
 	{
 		std::lock_guard<std::mutex> _lock(this->_mtx_guard);
-		this->_profile_stack_reg.eraseProfile(_profile_id, g_scope);
+		this->_profile_stack_reg.eraseProfile(_profile_id);
 	};
 
 	/**
@@ -841,21 +816,6 @@ template <typename _ForeignKeyType_ = String_t> class FSController
 		return new_collection_stat;
 	};
 
-	/**
-	 *
-	 * Extend profiler register scope, this will set the global variable within stack register to true,
-	 * in this case, when gc executes or erase(i) is called, the actual profiler with the real file descriptor will be erased.
-	 * @param bool if true, set extended mode, otherwise limited mode
-	 * @returns void
-	 *
-	 */
-	__attribute__((no_icf, cold, always_inline, optimize(ATTR_OPTIMIZE_LEVEL))) inline void SetProfileRegisterExtendedMode(const bool mode) noexcept
-	{
-		if (mode)
-			this->_profile_stack_reg.SetExtendedAccess();
-		else
-			this->_profile_stack_reg.SetRestrictedAccess();
-	};
 
 	/**
 	 *
