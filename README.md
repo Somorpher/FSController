@@ -2,6 +2,10 @@
 
 The FSController is a comprehensive C++ file system utility module that provides a wide range of operations for managing files and directories, including reading and writing files using memory mapping, creating and deleting files and directories, checking file existence and type, recursively aggregating directory entries, scanning directories for specific file types, creating backups of directories, and managing file profiler structures, all while being designed to be thread-safe and optimized for performance and size, with a focus on flexibility and ease of use, and providing a robust and efficient way to interact with the file system
 
+### Note:
+many functions can be replaced with native std::filesystem library components as the module relies on std::filesystem everywhere possible to reduce both compatibility and portability issues, but implementing more platform specific code in some regions for performance reasons, this is the case for FileRead and FileWrite member functions, calling FileRead/FileWrite will invoke memory mapping mechanisms to increase RW performance operations, compared to std::fstream, mapping memory guarantees more officiency and speed as it gets mapped into memory without involving disk I/O operations.
+
+## implementation
 very easy to implement...
 
 ### Simple Instance
