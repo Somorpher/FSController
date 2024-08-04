@@ -489,24 +489,6 @@ template <typename _ForeignKeyType_ = String_t> class FSController
 		return !(this->_fs_instance_uid == _o._fs_instance_uid);
 	};
 
-	/* FS Controller custom profile index deleter Operator Overload */
-	inline void operator[](const _ForeignKeyType_ &_fk) noexcept
-	{ // deleter
-		std::cout << "Operator deleter:\n";
-		return;
-	};
-
-	// inline const struct stFileDescriptor operator[](const _ForeignKeyType_ &_fk)
-	// noexcept { // getter
-	//   return {};
-	// };
-
-	inline const bool operator[](const struct stFileDescriptor &o) noexcept
-	{ // pusher
-		std::cout << "Operator Pusher:\n";
-		return true;
-	};
-
 	/**
 	 *
 	 * check if file_name exists or not.
