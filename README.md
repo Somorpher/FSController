@@ -44,7 +44,6 @@ struct alignas(void *) stProfilerStackRegister
 {
 	std::unordered_map<_FKType, struct stFileDescriptor> stack_register{};
 	size_t reg_stack_size{};                                              
-	bool extended_wiper{false}; 
 	bool gc_executed{false};
 };
 ```
