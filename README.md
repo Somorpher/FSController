@@ -146,11 +146,12 @@ FSC.FileExists("path/to/file/to/check");
 ### Create Backup of Directory
 > write content to a file
 ```cpp
-// last 2 arguments are:
+// last 3 arguments are:
+// create_backup_dir   => if true and backup dir not found, create bk dir.
 // dest_override       => if true, override the destination files
 // copy_empty_files    => if true, will also copy empty files
  
-if (!FSC.CreateDirectoryBackup("path/to/source/dir", "path/to/backup/dir", true, true)){
+if (!FSC.CreateDirectoryBackup("path/to/source/dir", "path/to/backup/dir", true, true, true)){
   std::cout << "Cannot create directory backup!\n";
 }
 ```
@@ -158,7 +159,7 @@ if (!FSC.CreateDirectoryBackup("path/to/source/dir", "path/to/backup/dir", true,
 ### Generate Directory Profiler
 > scan a directory, and create profiles for each block, will scan the entire directory and create a structure associated with FK
 ```cpp
-auto directoryProfiler = FSC.DirectoryProfiler("/path/to/dir/to/profile"); // map<FKT, stFileDescriptor>
+auto directoryProfiler = FSC.DirectoryProfiler("/path/to/dir/to/profile"); // <FKT, stFileDescriptor>
 conts String_t get_index("some_file_name_or_fk");
 
 if(directoryProfiler.find(get_index)){
@@ -198,7 +199,7 @@ if (profiledCollection.registry_size > 0)
 > FileRead() will return a file description...
 ```cpp
 // print register size 
-std::cout << "Profiler Register Size Before: " << FSC.GetStackRegisterSize() << "\n"; // 0
+std::cout << "Profiler Register Size Before: " << FSC.GetRegisterSize() << "\n"; // 0
 
 // register is private, retrieve with function call...
 stProfilerStackRegister pRegister = FSC.GetStackPointer();
@@ -207,15 +208,15 @@ stProfilerStackRegister pRegister = FSC.GetStackPointer();
 stFileDescriptor FD = FSC.FileRead("file/to/read");
 
 // register new description
-FSC.RegisterNewProfiler(FD);
+FSC.RegisterNewProfile(FD);
 
 // print register size again
-std::cout << "Profiler Register Size After: " << FSC.GetStackRegisterSize() << "\n"; // 1
+std::cout << "Profiler Register Size After: " << FSC.GetRegisterSize() << "\n"; // 1
 
 // delete a profile(Safe way)
-FSC.EraseRegisterProfile(FD.file_name); // filename has FK type and acts as the FK aka foreign-key
+FSC.DeleteProfile(FD.file_name); // filename has FK type and acts as the FK aka foreign-key
 
-// delete a profile(call-wrapping bypass)
+// delete a profile(e-chain bypass)
 pRegister.eraseProfile(FD.file_name); // same shit...
 
 ```
