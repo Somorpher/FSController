@@ -124,12 +124,6 @@ const bool is_sym_file  = FSC.IsSymlinkFile("path/to/file/to/check");
 const bool is_dir       = FSC.IsDirectory("path/to/dir");
 ```
 
-### Check Files
-> Verify if file exists
-```cpp
-FSC.FileExists("path/to/file/to/check");
-```
-
 
 ### File/FType Lookup
 > Search file or file type within directory
