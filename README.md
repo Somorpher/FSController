@@ -1,7 +1,7 @@
 # FSController
 
 
-![Logo](https://github.com/Somorpher/ByteCrypt/blob/main/70a2086a31e66fe62083ae6269e22522_66b6938127d82.png?raw=true)
+![Logo](https://github.com/Somorpher/FSController/blob/main/5ed30b80df61f3e3da9bab9bcf780025_66b6bef1ac50d.png?raw=true)
 
 [![GNU License](https://img.shields.io/badge/License-MIT-red.svg)](https://github.com/Somorpher/FSController/blob/main/LICENSE)
 
