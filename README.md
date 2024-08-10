@@ -1,5 +1,10 @@
 # FSController
 
+
+![Logo](https://github.com/Somorpher/ByteCrypt/blob/main/70a2086a31e66fe62083ae6269e22522_66b6938127d82.png?raw=true)
+
+[![GNU License](https://github.com/Somorpher/FSController/main/LICENSE)](#) 
+
 The FSController is a comprehensive C++ file system utility module that provides a wide range of operations for managing files and directories, including reading and writing files using memory mapping, creating and deleting files and directories, checking file existence and type, recursively aggregating directory entries, scanning directories for specific file types, creating backups of directories, and managing file profiler structures, all while being designed to be thread-safe and optimized for performance and size, with a focus on flexibility and ease of use, and providing a robust and efficient way to interact with the file system
 
 ### Note:
