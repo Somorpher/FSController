@@ -74,7 +74,7 @@
  * including reading and writing files using memory mapping. The FileRead function uses the mmap
  * system call to map a file into memory, allowing for efficient and fast access to file contents.
  * The FileWrite function, on the other hand, uses the mmap system call to map a file into memory,
- * and then uses the std::memcpy function to copy data from a buffer into the mapped memory region.
+ * and then uses the memcpy function to copy data from a buffer into the mapped memory region.
  * In addition to reading and writing files, the FSController class also provides functions for
  * creating and deleting files, checking if a file exists, is a text file, executable, or a symlink,
  * and creating and deleting directories. These functions are implemented using the std::filesystem
@@ -127,6 +127,8 @@
 #include <unistd.h>
 #include <unordered_map>
 #include <unordered_set>
+#include <set>
+#include <functional>
 #include <vector>
 
 /**
@@ -436,6 +438,8 @@ namespace FSControllerModule
         using directoryScanResult_t = std::unordered_map<_ForeignKeyType_, struct stFileDescriptor>;
 
     private:
+
+    bool sync_backup_exec_state;
         struct stProfilerStackRegister _profile_stack_reg; /* file profile stack register */
 
         std::uint64_t _fs_instance_uid = GenerateRandomId(); /* fs instance unique id, for copy/move semantics, avoid copy */
@@ -602,7 +606,7 @@ namespace FSControllerModule
 
                 fMap_t mapped_data_pointer(this->__createPointerMap(fileDescriptor, file_stat_description.st_size, true, 0));
 
-                this->__verifyMemMapState(std::as_const(mapped_data_pointer));
+                this->__verifyMemMapState(mapped_data_pointer);
 
                 this->__allocMappedBytes(new_profiler.file_content, &mapped_data_pointer, file_stat_description.st_size);
 
@@ -798,7 +802,7 @@ namespace FSControllerModule
         {
             std::ofstream fileCreate(_file_name.data());
             if (!fileCreate)
-                throw std::runtime_error(std::move(String_t("File Create: ") + std::strerror(errno)));
+                throw std::runtime_error(std::move(String_t("File Create: ") + strerror(errno)));
 
             if (!_content.empty())
             {
@@ -967,12 +971,9 @@ namespace FSControllerModule
 
                 if (!is_source)
                     throw std::runtime_error("source directory not valid for backup!");
-                if (!is_destination && !create_backup_dir) 
-                    throw std::runtime_error("destination backup directory not found and 'create_backup_dir' flag not set!");
                 else if(!is_destination && create_backup_dir)    
                     std::filesystem::create_directories(dir_dest);
-                else
-                    return false;
+                
                 if (IsDirectory(dir_dest))
                 {
                     for (const auto &d_entry : std::filesystem::recursive_directory_iterator(dir_source))
@@ -994,7 +995,7 @@ namespace FSControllerModule
                             std::filesystem::copy_file(d_entry.path(), destinationPath, dest_override ? std::filesystem::copy_options::overwrite_existing : std::filesystem::copy_options::skip_existing);
                         }
                     }
-                    return this->__directoryBackupVerify(dir_source, dir_dest);
+                    this->sync_backup_exec_state = this->__directoryBackupVerify(dir_source, dir_dest);
                 }
                 else
                 {
@@ -1004,9 +1005,18 @@ namespace FSControllerModule
             catch (const std::exception &e)
             {
                 std::cerr << "Error: " << e.what() << "\n";
-                return false;
+                this->sync_backup_exec_state = false;
             }
-            return false;
+            return this->sync_backup_exec_state;
+        };
+
+
+        bool CreateDirectoryBackupJoinExecution(const StringView_t &dir_source, const StringView_t &dir_dest, const bool create_backup_dir = false, const bool dest_override = false, const bool copy_empty_files = false)
+        {
+            this->sync_backup_exec_state = false;
+            std::thread sync_execute([&]{return this->CreateDirectoryBackup(dir_source, dir_dest, create_backup_dir, dest_override, copy_empty_files);});
+            if(sync_execute.joinable()) sync_execute.join();
+            return this->sync_backup_exec_state;
         };
 
         /**
@@ -1200,7 +1210,7 @@ namespace FSControllerModule
         {
             struct stat file_stat_description;
             if (fstat(file_descriptor, &file_stat_description) == -1) [[unlikely]]
-                throw std::runtime_error(String_t("Error getting file stat") + std::strerror(errno));
+                throw std::runtime_error(String_t("Error getting file stat") + strerror(errno));
             return file_stat_description;
         };
 
@@ -1215,7 +1225,7 @@ namespace FSControllerModule
         __0x_attr_FSC_vms inline void __verifyMemMapState(const fMap_t &map_ptr)
         {
             if (map_ptr == MAP_FAILED) [[unlikely]]
-                throw std::runtime_error(String_t("Error mapping file: ") + std::strerror(errno));
+                throw std::runtime_error(String_t("Error mapping file: ") + strerror(errno));
         };
 
         /**
@@ -1249,7 +1259,7 @@ namespace FSControllerModule
         __0x_attr_FSC_dmc inline void __descriptorMapClose(int &fileDescriptor, const fMap_t *__restrict__ mapped_data_pointer, const off_t &map_size)
         {
             if (munmap(*mapped_data_pointer, map_size) == -1) [[unlikely]]
-                throw std::runtime_error(String_t("Cannot unmap address! ") + std::strerror(errno));
+                throw std::runtime_error(String_t("Cannot unmap address! ") + strerror(errno));
             close(fileDescriptor);
         };
 
@@ -1265,7 +1275,7 @@ namespace FSControllerModule
         __0x_attr_FSC_drz inline void __descriptorResize(int &descriptor, const off_t &offset_size)
         {
             if (ftruncate(descriptor, offset_size) == -1) [[unlikely]]
-                throw std::runtime_error(String_t("Cannot resize descriptor!") + std::strerror(errno));
+                throw std::runtime_error(String_t("Cannot resize descriptor!") + strerror(errno));
         };
 
         /**
@@ -1292,7 +1302,7 @@ namespace FSControllerModule
          */
         __0x_attr_FSC_cmb inline void __copyMappedMemoryBytes(const fMap_t &destination, const StringView_t &source) noexcept
         {
-            std::memcpy(destination, source.data(), source.length());
+            memcpy(destination, source.data(), source.length());
         };
 
         /**
